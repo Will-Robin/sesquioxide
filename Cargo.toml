@@ -1,0 +1,13 @@
+[package]
+name = "sesquioxide"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = "1.5.5"
+walkdir = "2"
+
+[profile.release]
+strip = true # Automatically strip symbols from the binary.
+lto = true # Optimise at the link stage.
+codegen-units = 1
