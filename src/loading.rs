@@ -1,3 +1,4 @@
+use super::model::Model;
 use super::text_process;
 use std::collections::HashMap;
 use std::fs;
@@ -80,19 +81,19 @@ pub fn extract_contents(path: &str) -> Result<Vec<String>, String> {
 pub fn process_input(
     test_input: &[String],
     all_words: &HashMap<String, i32>,
-    idf_vals: &[f64],
+    model: &Model,
 ) -> Result<Vec<f64>, String> {
     if test_input.is_empty() {
         return Err(String::from("Empty query"));
     }
 
-    let mut test_vec: Vec<f64> = vec![0.0; idf_vals.len()];
+    let mut test_vec: Vec<f64> = vec![0.0; model.idf.len()];
 
     // Create a vector from the input (only consider words from the input which are already in the
     // corpus, and use idf values as calculated for the corpus).
     for (c, (word, _count)) in all_words.iter().enumerate() {
         if test_input.contains(word) {
-            test_vec[c] += 1.0 * idf_vals[c];
+            test_vec[c] += 1.0 * model.idf[c];
         }
     }
 
@@ -105,16 +106,18 @@ mod tests {
 
     #[test]
     fn test_load_paths_ok() {
-        let result: Result<Vec<String>, &str> = load_paths("data");
+        let result: Result<Vec<String>, &str> = load_paths("new_test");
 
         // This assertion may fail if the system serves files in a different order to the vector
         // given below.
         assert_eq!(
             Ok(vec![
-                "data/doc4.txt".to_string(),
-                "data/doc1.txt".to_string(),
-                "data/doc3.txt".to_string(),
-                "data/doc2.txt".to_string()
+                "new_test/RustNotes.md".to_string(),
+                "new_test/poem.txt".to_string(),
+                "new_test/doc4.txt".to_string(),
+                "new_test/doc1.txt".to_string(),
+                "new_test/doc3.txt".to_string(),
+                "new_test/doc2.txt".to_string()
             ]),
             result
         );
@@ -129,7 +132,7 @@ mod tests {
 
     #[test]
     fn test_load_corpus_ok() {
-        let paths: Vec<String> = vec!["data/doc1.txt".to_string()];
+        let paths: Vec<String> = vec!["new_test/doc1.txt".to_string()];
         let result: Result<Vec<Vec<String>>, &str> = load_corpus(&paths);
 
         assert_eq!(
@@ -148,7 +151,7 @@ mod tests {
 
     #[test]
     fn test_extract_contents_ok() {
-        let result: Result<Vec<String>, String> = extract_contents("data/doc1.txt");
+        let result: Result<Vec<String>, String> = extract_contents("new_test/doc1.txt");
 
         assert_eq!(Ok(vec!["sky".to_string(), "blue".to_string()]), result);
 

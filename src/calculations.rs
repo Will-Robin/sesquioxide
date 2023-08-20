@@ -1,3 +1,4 @@
+use super::model::Model;
 use std::collections::HashMap;
 
 /// Calculate the dot product of vec1 and vec2.
@@ -79,13 +80,9 @@ fn rank_idx(cosine_similarities: &[f64]) -> Vec<usize> {
         .collect()
 }
 
-pub fn score_query(
-    test_vec: &[f64],
-    tf_idf: &[Vec<f64>],
-    path_list: &[String],
-    top_n: usize,
-) {
-    let cos_sim: Vec<f64> = tf_idf
+pub fn score_query(test_vec: &[f64], model: &Model, path_list: &[String], top_n: usize) {
+    let cos_sim: Vec<f64> = model
+        .tf_idf
         .iter()
         .map(|x| cosine_similarity(test_vec, x))
         .collect::<Vec<f64>>();
